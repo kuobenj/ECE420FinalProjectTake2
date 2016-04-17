@@ -192,6 +192,57 @@ public class boxDetection {
         Imgcodecs.imwrite(filename + "processed.jpg", dst);
         Imgcodecs.imwrite(filename + "processed2.jpg", orig);
 
+        /**********  Map contour rectangle to bounding rectangle **********/
+        List<Point> bounding_rectangle_points = new ArrayList<>();
+        bounding_rectangle_points.add(new Point(bounding_rect.x, bounding_rect.y+bounding_rect.height));
+        bounding_rectangle_points.add(new Point(bounding_rect.x+bounding_rect.width, bounding_rect.y+bounding_rect.height));
+        bounding_rectangle_points.add(new Point(bounding_rect.x+bounding_rect.width, bounding_rect.y));
+        bounding_rectangle_points.add(new Point(bounding_rect.x, bounding_rect.y));
+
+//        vector<Point2f> rectangle_float = rectangletoPoint2f(largestrect);
+
+//        Mat transmtx = new Mat(4,1,Imgproc.CV_32FC2);
+        Mat transmtx = new Mat(4,1,CvType.CV_32FC2);
+        MatOfPoint largestrect_mat = new MatOfPoint();
+        largestrect_mat.fromList(largestrect);
+        largestrect_mat.convertTo(largestrect_mat,CvType.CV_32FC2);
+        MatOfPoint bounding_rectangle_points_mat = new MatOfPoint();
+        bounding_rectangle_points_mat.fromList(bounding_rectangle_points);
+        bounding_rectangle_points_mat.convertTo(bounding_rectangle_points_mat,CvType.CV_32FC2);
+        Log.d("Warping","Largest Rect: " + largestrect + "Bounding Rect: " + bounding_rectangle_points);
+        transmtx = Imgproc.getPerspectiveTransform(largestrect_mat/*rectangle_float*/,bounding_rectangle_points_mat);
+        Mat transformed = new Mat();
+        Imgproc.warpPerspective(orig, transformed, transmtx, orig.size());
+
+
+        /**********  Crop Image **********/
+        bounding_rect.x += 0.035*bounding_rect.width;
+        bounding_rect.y += 0.035*bounding_rect.height;
+        bounding_rect.width -= 0.07*bounding_rect.width;
+        bounding_rect.height -= 0.07*bounding_rect.height;
+        Mat croppedImage = transformed.submat(bounding_rect);
+
+        output = croppedImage;
+
+        Imgcodecs.imwrite(filename + "processed3.jpg", croppedImage);
+
+        /**********  Binarize Image **********/
+        //Convert to black and white
+        Mat greyCroppedImage = new Mat();
+        Imgproc.cvtColor(croppedImage, greyCroppedImage, Imgproc.COLOR_BGR2GRAY);
+        Mat cropped_binary = new Mat();
+        greyCroppedImage.convertTo(greyCroppedImage, CvType.CV_8UC1);
+
+        //Median Blur to remove speckles and smooth
+        Imgproc.medianBlur(greyCroppedImage, greyCroppedImage, 11);
+
+        //Use adaptive threshhold to binarize image
+        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 601, 100);
+
+        // resize(cropped_binary, cropped_binary, SIZE??, 0, 0, interpolation);
+        output = cropped_binary;
+
+        Imgcodecs.imwrite(filename + "processed4.jpg", cropped_binary);
 
         /**********  Freeing Memory **********/
 //        Core.ReleaseImage(pInpImg);
@@ -210,33 +261,37 @@ public class boxDetection {
      */
     private static List<Point> findLargestQuad(List<Point> input){
         List<Point> output = new ArrayList<Point>(4);
-        List<Point> temp = new ArrayList<Point>(4);
+//        List<Point> temp = new ArrayList<Point>(4);
         double largest_area = 0;
 
         if(input.size() < 4){
             return new ArrayList<Point>(4);
         }
+        MatOfPoint temp_mat = new MatOfPoint();
 
         for(int a = 0; a < input.size(); a++){
             for(int b = 0; b < input.size(); b++){
                 for(int c = 0; c < input.size(); c++){
                     for(int d = 0; d < input.size(); d++){
+                        List<Point> temp = new ArrayList<>();
                         temp.clear();
+                        temp.removeAll(temp);
                         temp.add(input.get(a));
                         temp.add(input.get(b));
                         temp.add(input.get(c));
                         temp.add(input.get(d));
-                        MatOfPoint temp_mat = new MatOfPoint();
+                        temp_mat.release();
                         temp_mat.fromList(temp);
                         if(a != b && a != c && a != d && b != c && b != d && c != d){
                             double area = Imgproc.contourArea(temp_mat,false);
                             if(area > largest_area){
+                                output.removeAll(output);
                                 output.clear();
                                 largest_area = area;
                                 output = temp;
-                                Log.d("Contours","New Largest quad");
+                                Log.d("Contours","New Largest Quad: " + output + "New Largest Input" + temp + "Area: " + area);
                             }
-                            Log.d("Contours","New Largest quad");
+//                            Log.d("Contours","New Largest quad");
                         }
                     }
                 }
