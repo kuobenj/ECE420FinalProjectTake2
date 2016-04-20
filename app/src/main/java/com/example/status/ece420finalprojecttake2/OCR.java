@@ -13,6 +13,8 @@ import org.opencv.core.*;
 import org.opencv.android.*;
 import org.opencv.imgcodecs.*;
 import org.opencv.imgproc.*;
+import org.opencv.ml.SVM;
+import org.opencv.ml.StatModel;
 import org.opencv.objdetect.*;
 
 import java.io.File;
@@ -31,6 +33,8 @@ public class OCR {
 
     public static void readChar(Context context){
         HOGDescriptor hogDesc = new HOGDescriptor(new Size(28,28), new Size(28,28), new Size(28,28), new Size(4,4), 12);
+        SVM svm = SVM.create();
+//        svm.getSupportVectors();
 //        Uri fileUri = Uri.parse("android.resource://com.example.status.ece420finalprojecttake2/drawable/test_0");
 //        Uri fileUri = Uri.parse("android.resource://com.example.status.ece420finalprojecttake2/"+R.drawable.test_0);
 //        Log.d("HOG", "TEST IMAGE PATH: "+fileUri.toString());
@@ -60,7 +64,7 @@ public class OCR {
 
         // Create a media file name
         String media_string = mediaStorageDir.getPath() + File.separator +
-                    "HOG_TEST.jpg";
+                    "hog_test.jpg";
         File mediaFile = new File(media_string);
         Uri fileUri = Uri.fromFile(mediaFile);
         Imgcodecs.imwrite(fileUri.toString(),testImage);
