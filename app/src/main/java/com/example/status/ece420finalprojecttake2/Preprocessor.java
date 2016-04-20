@@ -4,6 +4,9 @@ package com.example.status.ece420finalprojecttake2;
  * Created by Status on 4/16/2016.
  */
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import org.opencv.core.*;
@@ -11,10 +14,12 @@ import org.opencv.android.*;
 import org.opencv.imgcodecs.*;
 import org.opencv.imgproc.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class boxDetection {
+public class Preprocessor {
     public static void preprocess(String filename) {
         /********** Reading Input image **********/
 
@@ -299,5 +304,55 @@ public class boxDetection {
         }
         //cout << "Largest from findLargestQuad: " << largest_area <<endl;
         return output;
+    }
+
+    public static void testBinarization(Context context) {
+//        HOGDescriptor hogDesc = new HOGDescriptor(new Size(28,28), new Size(28,28), new Size(28,28), new Size(4,4), 12);
+//        Uri fileUri = Uri.parse("android.resource://com.example.status.ece420finalprojecttake2/drawable/b_test_0.jpg");
+//        Uri fileUri = Uri.parse("android.resource://com.example.status.ece420finalprojecttake2/"+R.drawable.b_test_0);
+//        Log.d("HOG", "TEST IMAGE PATH: " + fileUri.toString());
+//        Mat testImage = Imgcodecs.imread(fileUri.toString());
+        Mat testImage = null;
+        try {
+            testImage = Utils.loadResource(context, R.drawable.b_test_0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (testImage == null) {
+            Log.d("BINARY", "NULL MUTHAFUCKA");
+        }
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                Log.d("MyCameraApp", "failed to create directory");
+                return;
+            }
+        }
+
+        // Create a media file name
+        String media_string = mediaStorageDir.getPath() + File.separator +
+                "BINARY_TEST.jpg";
+        File mediaFile = new File(media_string);
+        Uri fileUri = Uri.fromFile(mediaFile);
+        Boolean bool  = Imgcodecs.imwrite(fileUri.toString(),testImage);
+        if (bool == true)
+            Log.d("BINARY", "SUCCESS writing image to external storage");
+        else
+            Log.d("BINARY", "Fail writing image to external storage");
+
+        Log.d("BINARY", "Image saved to: "+fileUri.toString());
+//        MatOfFloat features = new MatOfFloat();
+//        hogDesc.compute(testImage,features);
+//        Log.d("HOG","Features"+features);
+        Log.d("BINARY", "Image: " + testImage);
+
+//        preprocess(fileUri.toString());
+        preprocess(mediaFile.getAbsolutePath());
     }
 }

@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
     private Uri fileUri;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d("Start up", "Package name: "+getApplicationContext().getPackageName());
     }
 
     @Override
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -58,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
 
             return true;
+        }
+
+        if (id == R.id.test_char){
+            OCR.readChar(this);
+        }
+
+        if (id == R.id.test_img){
+            Preprocessor.testBinarization(this);
         }
 
         return super.onOptionsItemSelected(item);
@@ -80,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 //                Bitmap d = BitmapFactory.decodeFile(String.valueOf(data.getExtras().get(MediaStore.EXTRA_OUTPUT)));
                 jpgView.setImageBitmap(d);
 
-                boxDetection preprocessor = new boxDetection();
+                Preprocessor preprocessor = new Preprocessor();
                 preprocessor.preprocess(myFile.getAbsolutePath());
 
                 //display processed image
