@@ -32,6 +32,7 @@ package com.example.status.ece420finalprojecttake2;
 import java.util.TreeMap;
 import java.util.Stack;
 import java.lang.Character;
+import java.lang.Math;
 
 public class EvaluateDeluxe {
 
@@ -41,6 +42,7 @@ public class EvaluateDeluxe {
         if (op.equals("-")) return val1 - val2;
         if (op.equals("/")) return val1 / val2;
         if (op.equals("*")) return val1 * val2;
+        if (op.equals("^")) return Math.pow(val1,val2);
         throw new RuntimeException("Invalid operator");
     }
 
@@ -53,6 +55,7 @@ public class EvaluateDeluxe {
         precedence.put("-", 1);
         precedence.put("*", 2);
         precedence.put("/", 2);
+        precedence.put("^", 3);
 
         Stack<String> ops  = new Stack<String>();
         Stack<Double> vals = new Stack<Double>();
