@@ -31,6 +31,7 @@ package com.example.status.ece420finalprojecttake2;
 
 import java.util.TreeMap;
 import java.util.Stack;
+import java.lang.Character;
 
 public class EvaluateDeluxe {
 
@@ -56,11 +57,15 @@ public class EvaluateDeluxe {
         Stack<String> ops  = new Stack<String>();
         Stack<Double> vals = new Stack<Double>();
 
-        for (int i = 0; i < equation.length(); i=i+1) {
+        for (int i = 0; i < equation.length(); i++) {
+
+            String s = "";
 
             // read in next token (operator or value)
-            String s = "" + equation.charAt(i);
-
+            while(((equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.') && i < equation.length()) {
+                s = s + equation.charAt(i);
+                i++;
+            }
             // token is a value
             if (!precedence.containsKey(s)) {
                 vals.push(Double.parseDouble(s));
