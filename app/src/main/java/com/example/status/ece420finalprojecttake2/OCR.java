@@ -37,6 +37,19 @@ public class OCR {
         this.context = context;
     }
 
+    public static String getEquation(String filename) throws IOException {
+        Mat equation_image = Highgui.imread(filename);
+        CvSVM svm = getSVMFromFile();
+        List<MatOfFloat> features = generateFeatureData(equation_image);
+        String return_string = "";
+
+        for (int i = 0; i<features.size(); i++){
+            Log.d("SVM Predict Results","Value = "+svm.predict(features.get(i)));
+            return_string = return_string + charDict[(int)svm.predict(features.get(i))];
+        }
+        return return_string;
+    }
+
     public void testSegmentation() throws IOException {
         Mat testImage = null;
         try {
@@ -92,7 +105,7 @@ public class OCR {
 //        Mat testImage = Imgcodecs.imread(fileUri.toString());
         Mat testImage = null;
         try {
-            testImage = Utils.loadResource(context, R.drawable.test_1);
+            testImage = Utils.loadResource(context, R.drawable.test_10);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -134,6 +147,25 @@ public class OCR {
         List<Mat> characterData = trainingSetFromFile(input_image);
         List<MatOfFloat> features = new ArrayList<>();
         for(int i = 0; i < characterData.size(); i++){
+
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
+
+            // Create the storage directory if it does not exist
+            if (! mediaStorageDir.exists()){
+                if (! mediaStorageDir.mkdirs()){
+                    Log.d("MyCameraApp", "failed to create directory");
+                    return null;
+                }
+            }
+
+            // Create a media file name
+            String media_string = mediaStorageDir.getPath() + File.separator +
+                    "characterData"+i+".jpg";
+            File mediaFile = new File(media_string);
+            Uri fileUri = Uri.fromFile(mediaFile);
+            Highgui.imwrite(fileUri.getPath(),characterData.get(i));
+
             MatOfFloat hog_feature = new MatOfFloat();
             hogDesc.compute(characterData.get(i),hog_feature);
             features.add(hog_feature);
@@ -150,7 +182,7 @@ public class OCR {
         List<Mat> characterRaw = new ArrayList<>();
         Log.d("genCharLines","characterLines = "+characterLines);
         Mat characterLines_inv = new Mat();
-//        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
 //        characterLines_inv.convertTo(characterLines_inv, CvType.CV_8UC1);
         Core.bitwise_not(characterLines,characterLines_inv);
  //        Mat charFinder = new Mat(1,characterLines.height(),CvType.CV_32FC1);
@@ -173,6 +205,25 @@ public class OCR {
             }
             else if ((charFind[i] == 0) && ((charFind[i-1] > 0)&&(start != -1))){
                 characterRaw.add(characterLines.submat(0,characterLines.height(),start,i-1));
+
+                File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES), "MyCameraApp");
+
+                // Create the storage directory if it does not exist
+                if (! mediaStorageDir.exists()){
+                    if (! mediaStorageDir.mkdirs()){
+                        Log.d("MyCameraApp", "failed to create directory");
+                        return null;
+                    }
+                }
+
+                // Create a media file name
+                String media_string = mediaStorageDir.getPath() + File.separator +
+                        "rawcharacterimage"+i+".jpg";
+                File mediaFile = new File(media_string);
+                Uri fileUri = Uri.fromFile(mediaFile);
+                Highgui.imwrite(fileUri.getPath(),characterLines.submat(0,characterLines.height(),start,i-1));
+
                 start = -1;
             }
         }
@@ -185,84 +236,125 @@ public class OCR {
 
         Log.d("genCharForm","Entering generateCharacterFormatted, characterRaw size: "+characterRaw.size());
 
-        for(int i = 0; i < characterData.size(); i++){
+        for(int i = 0; i < characterRaw.size(); i++){
             Mat charInv = new Mat();
             Core.bitwise_not(characterRaw.get(i),charInv);
-            Mat charFinder = new Mat(characterRaw.get(i).width(),1,CvType.CV_32SC1);
-            Core.reduce(charInv,charFinder,1,Core.REDUCE_SUM);
-            float[] placefind = new float[0];
+//            Mat charFinder = new Mat(characterRaw.get(i).width(),1,CvType.CV_32SC1);
+            Mat charFinder = new Mat();
+            Core.reduce(charInv,charFinder,1,Core.REDUCE_SUM,CvType.CV_32SC1);
+            int[] placefind = new int[(int) (charFinder.total()*charFinder.channels())];
+            charFinder.get(0,0,placefind);
             int top = 0;
             int bottom = charInv.height()-1;
 
-            charInv.get(top,0,placefind);
-            while (placefind[0] == 0){
+            while ((placefind[top] == 0)&&(top < bottom)){
                 top++;
-                charInv.get(top,0,placefind);
             }
 
-            charInv.get(bottom,0,placefind);
-            while (placefind[0] == 0){
+            while ((placefind[bottom] == 0)&&(bottom > top)){
                 bottom--;
-                charInv.get(bottom,0,placefind);
             }
 
             Mat characterBound = characterRaw.get(i).submat(top,bottom,0,charInv.width());
 
-            //?? what the hell is character
-            // character = np.full((28, 28), 255.0, dtype = np.uint8)
+//            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+//                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
+//
+//            // Create the storage directory if it does not exist
+//            if (! mediaStorageDir.exists()){
+//                if (! mediaStorageDir.mkdirs()){
+//                    Log.d("MyCameraApp", "failed to create directory");
+//                    return null;
+//                }
+//            }
+//
+//            // Create a media file name
+//            String media_string = mediaStorageDir.getPath() + File.separator +
+//                    "characterboundimage"+i+".jpg";
+//            File mediaFile = new File(media_string);
+//            Uri fileUri = Uri.fromFile(mediaFile);
+//            Highgui.imwrite(fileUri.getPath(),characterBound);
+
 
             float height = characterBound.height();
             float width = characterBound.width();
+
+            Log.d("genCharForm", "Image Height: "+height+" Image Width: "+width);
 
             float newHeight = 0;
             float newWidth = 0;
 
             if (height > width) {
                 newHeight = 20;
-                newWidth = ((int) width * newHeight / height / 2) / 2;
+                newWidth = width * newHeight / height;
                 if (newWidth <= 0) {
                     newWidth = 2;
                 }
             }
             else {
                 newWidth = 20;
-                newHeight = ((int) height * newWidth / width / 2) / 2;
+                newHeight = height * newWidth / width;
                 if (newHeight <= 0){
                     newHeight = 2;
                 }
             }
 
+            Log.d("genCharForm", "New Image Height: "+newHeight+" New Image Width: "+newWidth);
+
             Mat characterScaled = new Mat();
             Imgproc.resize(characterBound,characterScaled,new Size(newWidth,newHeight));
 
-            Mat character = new Mat(28,28,CvType.CV_8UC1,new Scalar(255));
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
 
-            characterScaled.copyTo(character.rowRange(Math.round(14 - newHeight / 2),Math.round(14 + newHeight / 2)).colRange(Math.round((14 - newWidth / 2)),Math.round(14 + newWidth / 2)));
-
-            float getfloat[] = new float[0];
-            for (int j = 0; j < character.width(); j++){
-                for (int k = 0; k < character.height(); k++){
-                    character.get(j,k,getfloat);
-                    if (getfloat[0] >= 200) {
-                        getfloat[0] = 255;
-                        character.put(j, k, getfloat);
-                    }
-                    else {
-                        getfloat[0] = 0;
-                        character.put(j,k,getfloat);
-                    }
-
+            // Create the storage directory if it does not exist
+            if (! mediaStorageDir.exists()){
+                if (! mediaStorageDir.mkdirs()){
+                    Log.d("MyCameraApp", "failed to create directory");
+                    return null;
                 }
             }
+
+            // Create a media file name
+            String media_string = mediaStorageDir.getPath() + File.separator +
+                    "characterscaledimage"+i+".jpg";
+            File mediaFile = new File(media_string);
+            Uri fileUri = Uri.fromFile(mediaFile);
+            Highgui.imwrite(fileUri.getPath(),characterScaled);
+
+
+            Mat character = new Mat(28,28,CvType.CV_8UC1,new Scalar(255));
+
+//            Mat poop = new Mat(20,20,CvType.CV_8UC1,new Scalar(0));
+
+            Log.d("genCharForm","Row range and col range bounds: ["+Math.round(14 - newHeight / 2)+","+Math.round(14 + newHeight / 2)+","+Math.round(14 - newWidth / 2)+","+Math.round(14 + newWidth / 2)+"]");
+
+            characterScaled.copyTo(character.submat(new Rect(14-(int)newWidth/2,14-(int)newHeight/2,(int)newWidth,(int)newHeight)));
+
+            byte getbyte[] = new byte[(int) (character.total()*character.channels())];
+
+//            character.get(0,0,getbyte);
+//
+//            for (int j = 0; j < getbyte.length; j++){
+//                if (getbyte[j] >= 150) {
+//                    getbyte[j] = (byte) 255;
+//                }
+//                else {
+//                    getbyte[0] = 0;
+//
+//                }
+//            }
+//            character.put(0,0,getbyte);
 
             characterData.add(character);
         }
 
+        Log.d("genCharForm","Finished with generating Formatted characters, Length: "+characterData.size());
         return characterData;
     }
 
 
-    private CvSVM getSVMFromFile() throws IOException {
+    private static CvSVM getSVMFromFile() throws IOException {
         InputStream xml_file = context.getResources().openRawResource(R.raw.handwriting_svm);
 
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/MyCameraApp", "handwriting_svm.xml");
@@ -284,5 +376,7 @@ public class OCR {
         return svm;
     }
 
-    private Context context;
+    private static Context context;
+
+    private static String charDict[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9","x", "y", "(", ")", "+", "-", "="};
 }

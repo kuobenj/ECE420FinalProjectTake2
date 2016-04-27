@@ -12,12 +12,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,10 +106,27 @@ public class MainActivity extends AppCompatActivity {
                 File myFile = new File(fileUri.getPath());
                 Bitmap d = BitmapFactory.decodeFile(myFile.getAbsolutePath());
 //                Bitmap d = BitmapFactory.decodeFile(String.valueOf(data.getExtras().get(MediaStore.EXTRA_OUTPUT)));
-                jpgView.setImageBitmap(d);
+//                jpgView.setImageBitmap(d);
+
+                last_file = myFile.getAbsolutePath();
 
                 Preprocessor preprocessor = new Preprocessor();
-                preprocessor.preprocess(myFile.getAbsolutePath());
+                Preprocessor.preprocess(myFile.getAbsolutePath());
+
+                OCR my_ocr = new OCR(this);
+
+                String equation = null;
+                try {
+                    equation = my_ocr.getEquation(myFile.getAbsolutePath()+"processed4.jpg");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                d = BitmapFactory.decodeFile(myFile.getAbsolutePath()+"processed4.jpg");
+                jpgView.setImageBitmap(d);
+
+                TextView textView = (TextView)findViewById(R.id.textView2);
+                textView.setText(equation);
 
                 //display processed image
 //                ImageView jpgView2 = (ImageView)findViewById(R.id.jpgview2);
@@ -186,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private OCR my_ocr;
+    private String last_file;
 
     static{ System.loadLibrary("opencv_java"); }
 }

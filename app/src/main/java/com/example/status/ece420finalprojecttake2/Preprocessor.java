@@ -182,6 +182,7 @@ public class Preprocessor {
         }
         else{
             Log.e("Contours","NO SUITABLE RECTANGLE DETECTED");
+            return;
         }
 
         //Bounding rectangle (For testing) (not easy to translate)
@@ -420,6 +421,7 @@ public class Preprocessor {
         }
         else{
             Log.e("Contours","NO SUITABLE RECTANGLE DETECTED");
+            return;
         }
 
         //Bounding rectangle (For testing) (not easy to translate)
