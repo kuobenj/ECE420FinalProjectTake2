@@ -63,14 +63,16 @@ public class EvaluateDeluxe {
 
             // read in next token (operator or value)
             if((equation.charAt(i) >= '0' && equation.charAt(i) <= '9')){
-                while(((equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.') && i < equation.length()) {
+                while(((i < equation.length()) && (equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.')) {
                     s = s + equation.charAt(i);
                     i++;
                 }
+                i--;
             }
             else{
                 s = s + equation.charAt(i);
             }
+
             // token is a value
             if (!precedence.containsKey(s)) {
                 vals.push(Double.parseDouble(s));
