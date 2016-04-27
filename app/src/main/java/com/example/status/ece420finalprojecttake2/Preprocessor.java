@@ -11,7 +11,8 @@ import android.util.Log;
 
 import org.opencv.core.*;
 import org.opencv.android.*;
-import org.opencv.imgcodecs.*;
+//import org.opencv.imgcodecs.*;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.*;
 
 import java.io.File;
@@ -25,7 +26,7 @@ public class Preprocessor {
 
         // Load an image from file - change this based on your image name
 //        IplImage pInpImg = cvLoadImage(filename);
-        Mat pInpImg = Imgcodecs.imread(filename);
+        Mat pInpImg = Highgui.imread(filename);
         if (pInpImg == null) {
             Log.e("Image Error", "failed to load input image\n");
             return;
@@ -48,7 +49,7 @@ public class Preprocessor {
         Log.d("Image Conversion", "Image Converted to Gray");
 
         //Gaussian blur to remove noise
-        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0, 0, Core.BORDER_DEFAULT);
+        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0, 0, Imgproc.BORDER_DEFAULT);
 
         Log.d("Image Conversion", "Image Blurred");
 
@@ -58,7 +59,7 @@ public class Preprocessor {
 
         Log.d("Image Conversion", "Image Thresholded");
 
-        Imgcodecs.imwrite(filename + "greyandthresh.jpg", thresh);
+        Highgui.imwrite(filename + "greyandthresh.jpg", thresh);
 
         Log.d("Image Conversion", "Thresholded image saved");
 
@@ -128,7 +129,7 @@ public class Preprocessor {
 
         /**********  Draw around contour (Testing only)  **********/
          for(int i = 0; i < approxCurve.toList().size(); i++){
-           Imgproc.line(orig, approxCurve.toList().get(i%approxCurve.toList().size()), approxCurve.toList().get((i+1)%approxCurve.toList().size()), blue, thickness);
+           Core.line(orig, approxCurve.toList().get(i%approxCurve.toList().size()), approxCurve.toList().get((i+1)%approxCurve.toList().size()), blue, thickness);
          }
 
 
@@ -176,7 +177,7 @@ public class Preprocessor {
             Log.d("Countours", "Largest Rect Size" + Imgproc.contourArea(largestrect_mat,false));
             for(int i = 0; i < largestrect.size(); i ++){
                 //line(orig, approxCurve.at(i%approxCurve.size()), approxCurve.at((i+1)%approxCurve.size()), red, thickness);
-                Imgproc.line(orig, largestrect.get(i%largestrect.size()), largestrect.get((i+1)%largestrect.size()), red, thickness);
+                Core.line(orig, largestrect.get(i%largestrect.size()), largestrect.get((i+1)%largestrect.size()), red, thickness);
             }
         }
         else{
@@ -194,8 +195,8 @@ public class Preprocessor {
 //        if(!imwrite(argv[2], output)){
 //            fprintf(stderr, "failed to write image file\n");
 //        }
-        Imgcodecs.imwrite(filename + "processed.jpg", dst);
-        Imgcodecs.imwrite(filename + "processed2.jpg", orig);
+        Highgui.imwrite(filename + "processed.jpg", dst);
+        Highgui.imwrite(filename + "processed2.jpg", orig);
         Log.d("Preprocessor", "Image: " + orig);
 
         /**********  Map contour rectangle to bounding rectangle **********/
@@ -232,7 +233,7 @@ public class Preprocessor {
 
         output = croppedImage;
 
-        Imgcodecs.imwrite(filename + "processed3.jpg", croppedImage);
+        Highgui.imwrite(filename + "processed3.jpg", croppedImage);
 
         /**********  Binarize Image **********/
         //Convert to black and white
@@ -250,7 +251,7 @@ public class Preprocessor {
         // resize(cropped_binary, cropped_binary, SIZE??, 0, 0, interpolation);
         output = cropped_binary;
 
-        Imgcodecs.imwrite(filename + "processed4.jpg", cropped_binary);
+        Highgui.imwrite(filename + "processed4.jpg", cropped_binary);
 
         /**********  Freeing Memory **********/
 //        Core.ReleaseImage(pInpImg);
@@ -286,7 +287,7 @@ public class Preprocessor {
         Log.d("Image Conversion", "Image Converted to Gray");
 
         //Gaussian blur to remove noise
-        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0, 0, Core.BORDER_DEFAULT);
+        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0, 0, Imgproc.BORDER_DEFAULT);
 
         Log.d("Image Conversion", "Image Blurred");
 
@@ -296,7 +297,7 @@ public class Preprocessor {
 
         Log.d("Image Conversion", "Image Thresholded");
 
-        Imgcodecs.imwrite(filename + "greyandthresh.jpg", thresh);
+        Highgui.imwrite(filename + "greyandthresh.jpg", thresh);
 
         Log.d("Image Conversion", "Thresholded image saved");
 
@@ -366,7 +367,7 @@ public class Preprocessor {
 
         /**********  Draw around contour (Testing only)  **********/
         for(int i = 0; i < approxCurve.toList().size(); i++){
-            Imgproc.line(orig, approxCurve.toList().get(i%approxCurve.toList().size()), approxCurve.toList().get((i+1)%approxCurve.toList().size()), blue, thickness);
+            Core.line(orig, approxCurve.toList().get(i%approxCurve.toList().size()), approxCurve.toList().get((i+1)%approxCurve.toList().size()), blue, thickness);
         }
 
 
@@ -414,7 +415,7 @@ public class Preprocessor {
             Log.d("Countours", "Largest Rect Size" + Imgproc.contourArea(largestrect_mat,false));
             for(int i = 0; i < largestrect.size(); i ++){
                 //line(orig, approxCurve.at(i%approxCurve.size()), approxCurve.at((i+1)%approxCurve.size()), red, thickness);
-                Imgproc.line(orig, largestrect.get(i%largestrect.size()), largestrect.get((i+1)%largestrect.size()), red, thickness);
+                Core.line(orig, largestrect.get(i%largestrect.size()), largestrect.get((i+1)%largestrect.size()), red, thickness);
             }
         }
         else{
@@ -432,8 +433,8 @@ public class Preprocessor {
 //        if(!imwrite(argv[2], output)){
 //            fprintf(stderr, "failed to write image file\n");
 //        }
-        Imgcodecs.imwrite(filename + "processed.jpg", dst);
-        Imgcodecs.imwrite(filename + "processed2.jpg", orig);
+        Highgui.imwrite(filename + "processed.jpg", dst);
+        Highgui.imwrite(filename + "processed2.jpg", orig);
         Log.d("Preprocessor", "Image: " + orig);
 
         /**********  Map contour rectangle to bounding rectangle **********/
@@ -470,7 +471,7 @@ public class Preprocessor {
 
         output = croppedImage;
 
-        Imgcodecs.imwrite(filename + "processed3.jpg", croppedImage);
+        Highgui.imwrite(filename + "processed3.jpg", croppedImage);
 
         /**********  Binarize Image **********/
         //Convert to black and white
@@ -488,7 +489,7 @@ public class Preprocessor {
         // resize(cropped_binary, cropped_binary, SIZE??, 0, 0, interpolation);
         output = cropped_binary;
 
-        Imgcodecs.imwrite(filename + "processed4.jpg", cropped_binary);
+        Highgui.imwrite(filename + "processed4.jpg", cropped_binary);
 
         /**********  Freeing Memory **********/
 //        Core.ReleaseImage(pInpImg);
@@ -629,13 +630,13 @@ public class Preprocessor {
                 "binary_test.jpg";
         File mediaFile = new File(media_string);
         Uri fileUri = Uri.fromFile(mediaFile);
-        Boolean bool  = Imgcodecs.imwrite(fileUri.toString(),testImage2);
+        Boolean bool  = Highgui.imwrite(fileUri.getPath(),testImage2);
         if (bool == true)
             Log.d("BINARY", "SUCCESS writing image to external storage");
         else
             Log.d("BINARY", "Fail writing image to external storage");
 
-        Log.d("BINARY", "Image saved to: "+fileUri.toString());
+        Log.d("BINARY", "Image saved to: "+fileUri.getPath());
 //        MatOfFloat features = new MatOfFloat();
 //        hogDesc.compute(testImage,features);
 //        Log.d("HOG","Features"+features);

@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -65,7 +66,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.test_char){
-            OCR.readChar(this);
+            try {
+                OCR.readChar(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         if (id == R.id.test_img){
@@ -171,5 +176,5 @@ public class MainActivity extends AppCompatActivity {
         return mediaFile;
     }
 
-    static{ System.loadLibrary("opencv_java3"); }
+    static{ System.loadLibrary("opencv_java"); }
 }
