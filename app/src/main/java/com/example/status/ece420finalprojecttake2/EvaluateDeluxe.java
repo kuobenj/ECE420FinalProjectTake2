@@ -36,6 +36,28 @@ import java.lang.Math;
 
 public class EvaluateDeluxe {
 
+    public static String stringfixerooni(String input){
+        //fuck spaces
+        input.replace(" ", "");
+
+        //Minus sign boyz
+        if(input.charAt(0) == '-'){
+            input = "0" + input;
+        }
+
+        //multiply boogaloo
+        for(int i = 0; i < input.length()-1; i++){
+            if(input.charAt(i) >= '0' && input.charAt(i) <= '9' && input.charAt(i+1) == '('){
+                input = input.substring(0, i) + "*" + input.substring(i, input.length());
+            }
+            else if(input.charAt(i+1) == ')' && input.charAt(i+1) >= '0' && input.charAt(i+1) <= '9'){
+                input = input.substring(0, i) + "*" + input.substring(i, input.length());
+            }
+        }
+
+        return input;
+    }
+
     // result of applying binary operator op to two operands val1 and val2
     public static double eval(String op, double val1, double val2) {
         if (op.equals("+")) return val1 + val2;
