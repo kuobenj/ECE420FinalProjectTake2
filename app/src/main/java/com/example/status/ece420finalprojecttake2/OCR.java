@@ -33,11 +33,6 @@ import java.util.List;
 
 public class OCR {
 
-//    public static void generateFeatureData(String filename){
-//        HOGDescriptor hogDesc = new HOGDescriptor(new Size(28,28), new Size(28,28), new Size(28,28), new Size(4,4), 12);
-//
-//    }
-
     public OCR(Context context){
         this.context = context;
     }
@@ -50,6 +45,7 @@ public class OCR {
             e.printStackTrace();
         }
 
+        Log.d("testSeg","Image = "+ testImage);
         CvSVM svm = getSVMFromFile();
         List<MatOfFloat> features = generateFeatureData(testImage);
 
@@ -152,38 +148,47 @@ public class OCR {
 
     private static List<Mat> generateCharacterFromLines(Mat characterLines) {
         List<Mat> characterRaw = new ArrayList<>();
-
+        Log.d("genCharLines","characterLines = "+characterLines);
         Mat characterLines_inv = new Mat();
-        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
-        characterLines_inv.convertTo(characterLines_inv, CvType.CV_8UC1);
-        Core.invert(characterLines_inv,characterLines_inv);
+//        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
+//        characterLines_inv.convertTo(characterLines_inv, CvType.CV_8UC1);
+        Core.bitwise_not(characterLines,characterLines_inv);
+ //        Mat charFinder = new Mat(1,characterLines.height(),CvType.CV_32FC1);
         Mat charFinder = new Mat();
-        Core.reduce(characterLines_inv,charFinder,0,Core.REDUCE_SUM);
-
+        Core.reduce(characterLines_inv,charFinder,0,Core.REDUCE_SUM,CvType.CV_32SC1);
+//        Core.reduce(characterLines_inv,charFinder,0,Core.REDUCE_MAX);
+        Log.d("genCharLines","Character Finder Size: "+charFinder);
         int start = -1;
-        float[] charFind = new float[0];
-        float[] charFindPrev = new float[0];
-        for(int i = 1; i < charFinder.width(); i++){
-            charFinder.get(i,0,charFind);
-            charFinder.get(i-1,0,charFindPrev);
-            if ((charFind[0] > 0) && ((charFindPrev[0] == 0)||(start == -1))){
+        int[] charFind = new int[(int) (charFinder.total()*charFinder.channels())];
+        charFinder.get(0,0,charFind);
+//        int[] charFindPrev = new int[1];
+        Log.d("genCharLines","charFind length"+charFind.length);
+        for(int i = 1; i < charFind.length; i++){
+//            charFinder.get(i,0,charFind);
+//            charFinder.get(i-1,0,charFindPrev);
+//            Log.d("genCharLines","charFind: "+charFind[i]);
+//            Log.d("genCharLines","charFindPrev: "+charFind[i-1]);
+            if ((charFind[i] > 0) && ((charFind[i-1] == 0)||(start == -1))){
                 start = i;
             }
-            else if ((charFind[0] == 0) && ((charFindPrev[0] > 0)&&(start != -1))){
+            else if ((charFind[i] == 0) && ((charFind[i-1] > 0)&&(start != -1))){
                 characterRaw.add(characterLines.submat(0,characterLines.height(),start,i-1));
                 start = -1;
             }
         }
-
+        Log.d("genCharLines","Done Generating Raw Characters, characterRaw size: "+characterRaw.size());
         return characterRaw;
     }
 
     private static List<Mat> generateCharacterFormatted(List<Mat> characterRaw) {
         List<Mat> characterData = new ArrayList<>();
+
+        Log.d("genCharForm","Entering generateCharacterFormatted, characterRaw size: "+characterRaw.size());
+
         for(int i = 0; i < characterData.size(); i++){
             Mat charInv = new Mat();
-            Core.invert(characterRaw.get(i),charInv);
-            Mat charFinder = new Mat();
+            Core.bitwise_not(characterRaw.get(i),charInv);
+            Mat charFinder = new Mat(characterRaw.get(i).width(),1,CvType.CV_32SC1);
             Core.reduce(charInv,charFinder,1,Core.REDUCE_SUM);
             float[] placefind = new float[0];
             int top = 0;
