@@ -62,9 +62,14 @@ public class EvaluateDeluxe {
             String s = "";
 
             // read in next token (operator or value)
-            while(((equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.') && i < equation.length()) {
+            if((equation.charAt(i) >= '0' && equation.charAt(i) <= '9')){
+                while(((equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.') && i < equation.length()) {
+                    s = s + equation.charAt(i);
+                    i++;
+                }
+            }
+            else{
                 s = s + equation.charAt(i);
-                i++;
             }
             // token is a value
             if (!precedence.containsKey(s)) {
