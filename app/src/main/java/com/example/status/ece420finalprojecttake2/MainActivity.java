@@ -73,6 +73,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        if (id == R.id.test_segmentation){
+            my_ocr = new OCR(this);
+            try {
+                my_ocr.testSegmentation();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (id == R.id.test_img){
             Preprocessor.testBinarization(this);
         }
@@ -175,6 +184,8 @@ public class MainActivity extends AppCompatActivity {
 
         return mediaFile;
     }
+
+    private OCR my_ocr;
 
     static{ System.loadLibrary("opencv_java"); }
 }
