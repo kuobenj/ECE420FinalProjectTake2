@@ -47,11 +47,12 @@ public class EvaluateDeluxe {
 
         //multiply boogaloo
         for(int i = 0; i < input.length()-1; i++){
-            if(input.charAt(i) >= '0' && input.charAt(i) <= '9' && input.charAt(i+1) == '('){
-                input = input.substring(0, i) + "*" + input.substring(i, input.length());
+
+            if(input.charAt(i) >= '0' && input.charAt(i) <= '9' && (input.charAt(i+1) == '(' || input.charAt(i+1) == 'x' || input.charAt(i+1) == 'y')){
+                input = input.substring(0, i+1) + "*" + input.substring(i+1, input.length());
             }
-            else if(input.charAt(i+1) == ')' && input.charAt(i+1) >= '0' && input.charAt(i+1) <= '9'){
-                input = input.substring(0, i) + "*" + input.substring(i, input.length());
+            else if((input.charAt(i+1) == '(' || input.charAt(i+1) == 'x' || input.charAt(i+1) == 'y') && input.charAt(i+1) >= '0' && input.charAt(i+1) <= '9'){
+                input = input.substring(0, i+1) + "*" + input.substring(i+1, input.length());
             }
         }
 
@@ -82,13 +83,13 @@ public class EvaluateDeluxe {
         Stack<String> ops  = new Stack<String>();
         Stack<Double> vals = new Stack<Double>();
 
-        for (int i = 0; i < equation.length(); i++) {
+        for (int i = 0; i < equation.length(); i=i+1) {
 
             String s = "";
 
             // read in next token (operator or value)
             if((equation.charAt(i) >= '0' && equation.charAt(i) <= '9')){
-                while(((i < equation.length()) && (equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.')) {
+                while(i < equation.length() && ((equation.charAt(i) >= '0' && equation.charAt(i) <= '9') || equation.charAt(i) == '.')) {
                     s = s + equation.charAt(i);
                     i++;
                 }
@@ -126,6 +127,7 @@ public class EvaluateDeluxe {
                 else {
                     double val2 = vals.pop();
                     double val1 = vals.pop();
+
                     vals.push(eval(op, val1, val2));
                 }
             }
@@ -143,5 +145,33 @@ public class EvaluateDeluxe {
         assert vals.isEmpty();
         assert ops.isEmpty();
         return vals.pop();
+    }
+
+    public static void main(String[] args) {
+
+
+
+        String equationStr = "2(x-1)^2";
+        String evaluationStr;
+        String valStr;
+        int pointNum = 201;
+        double[] xVals = new double[pointNum];
+        double[] yVals = new double[pointNum];
+
+        System.out.println("plsfix");
+        equationStr = stringfixerooni(equationStr);
+        System.out.println(equationStr);
+
+        for (int i = 0; i < pointNum; i++) {
+            xVals[i] = 0.1 * i - 10;
+            if (xVals[i] < 0)
+                valStr = "(0"+Double.toString(xVals[i])+")";
+            else
+                valStr = Double.toString(xVals[i]);
+            evaluationStr = equationStr.replace("x", valStr);
+            yVals[i] = parseEquation(evaluationStr);
+            System.out.print(yVals[i] + " ");
+        }
+
     }
 }
