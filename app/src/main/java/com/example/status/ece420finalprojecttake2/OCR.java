@@ -200,6 +200,7 @@ public class OCR {
 //            charFinder.get(i-1,0,charFindPrev);
 //            Log.d("genCharLines","charFind: "+charFind[i]);
 //            Log.d("genCharLines","charFindPrev: "+charFind[i-1]);
+            Log.d("genCharLines","start:"+start+"characterLines:"+characterLines.height());
             if ((charFind[i] > 0) && ((charFind[i-1] == 0)||(start == -1))){
                 start = i;
             }
@@ -327,7 +328,7 @@ public class OCR {
 
 //            Mat poop = new Mat(20,20,CvType.CV_8UC1,new Scalar(0));
 
-            Log.d("genCharForm","Row range and col range bounds: ["+Math.round(14 - newHeight / 2)+","+Math.round(14 + newHeight / 2)+","+Math.round(14 - newWidth / 2)+","+Math.round(14 + newWidth / 2)+"]");
+//            Log.d("genCharForm","Row range and col range bounds: ["+Math.round(14 - newHeight / 2)+","+Math.round(14 + newHeight / 2)+","+Math.round(14 - newWidth / 2)+","+Math.round(14 + newWidth / 2)+"]");
 
             characterScaled.copyTo(character.submat(new Rect(14-(int)newWidth/2,14-(int)newHeight/2,(int)newWidth,(int)newHeight)));
 

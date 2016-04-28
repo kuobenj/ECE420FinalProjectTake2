@@ -226,10 +226,10 @@ public class Preprocessor {
 
 
         /**********  Crop Image **********/
-        bounding_rect.x += 0.035*bounding_rect.width;
-        bounding_rect.y += 0.035*bounding_rect.height;
-        bounding_rect.width -= 0.07*bounding_rect.width;
-        bounding_rect.height -= 0.07*bounding_rect.height;
+        bounding_rect.x += 0.045*bounding_rect.width;
+        bounding_rect.y += 0.045*bounding_rect.height;
+        bounding_rect.width -= 0.09*bounding_rect.width;
+        bounding_rect.height -= 0.09*bounding_rect.height;
         Mat croppedImage = transformed.submat(bounding_rect);
 
         output = croppedImage;
@@ -246,9 +246,10 @@ public class Preprocessor {
         //Median Blur to remove speckles and smooth
         Imgproc.medianBlur(greyCroppedImage, greyCroppedImage, 11);
 
-        //Use adaptive threshhold to binarize image
-        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 601, 100);
+        Highgui.imwrite(filename + "processed3_5.jpg", greyCroppedImage);
 
+        //Use adaptive threshhold to binarize image
+        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 51, 12);
         // resize(cropped_binary, cropped_binary, SIZE??, 0, 0, interpolation);
         output = cropped_binary;
 
