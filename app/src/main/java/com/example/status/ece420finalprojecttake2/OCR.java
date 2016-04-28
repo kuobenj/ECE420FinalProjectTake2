@@ -182,7 +182,7 @@ public class OCR {
         List<Mat> characterRaw = new ArrayList<>();
         Log.d("genCharLines","characterLines = "+characterLines);
         Mat characterLines_inv = new Mat();
-        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
 //        characterLines_inv.convertTo(characterLines_inv, CvType.CV_8UC1);
         Core.bitwise_not(characterLines,characterLines_inv);
  //        Mat charFinder = new Mat(1,characterLines.height(),CvType.CV_32FC1);
