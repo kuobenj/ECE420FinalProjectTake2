@@ -484,10 +484,12 @@ public class Preprocessor {
         greyCroppedImage.convertTo(greyCroppedImage, CvType.CV_8UC1);
 
         //Median Blur to remove speckles and smooth
-        Imgproc.medianBlur(greyCroppedImage, greyCroppedImage, 50);
+        Imgproc.medianBlur(greyCroppedImage, greyCroppedImage, 13);
+
+        int blocksize = (greyCroppedImage.width()/6)*2 + 1;
 
         //Use adaptive threshhold to binarize image
-        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 601, 90);
+        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blocksize, 10);
 
         // resize(cropped_binary, cropped_binary, SIZE??, 0, 0, interpolation);
         output = cropped_binary;

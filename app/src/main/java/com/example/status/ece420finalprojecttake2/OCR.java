@@ -34,7 +34,7 @@ import java.util.List;
 public class OCR {
 
     public OCR(Context context){
-        this.context = context;
+        OCR.context = context;
     }
 
     public static String getEquation(String filename) throws IOException {
@@ -244,7 +244,13 @@ public class OCR {
 
         for(int i = 0; i < characterRaw.size(); i++){
             Mat charInv = new Mat();
-            Core.bitwise_not(characterRaw.get(i),charInv);
+            Mat chartemp = new Mat();
+            //new filtering to decrease decimation
+            Core.bitwise_not(characterRaw.get(i),chartemp);
+            Mat kernel = new Mat();
+            Imgproc.filter2D(chartemp,chartemp,-1, Mat.ones(2,2,CvType.CV_8UC1));
+            Core.bitwise_not(chartemp,chartemp);
+            Core.bitwise_not(chartemp,charInv);
             int top = 0;
             int bottom = charInv.height()-1;
 //            Mat charFinder = new Mat(characterRaw.get(i).width(),1,CvType.CV_32SC1);
@@ -309,7 +315,7 @@ public class OCR {
             Log.d("genCharForm", "New Image Height: "+newHeight+" New Image Width: "+newWidth);
 
             Mat characterScaled = new Mat();
-            Imgproc.resize(characterBound,characterScaled,new Size(newWidth,newHeight));
+            Imgproc.resize(characterBound,characterScaled,new Size(newWidth,newHeight),0,0,Imgproc.INTER_AREA);
 
             File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES), "MyCameraApp");
@@ -339,11 +345,11 @@ public class OCR {
             characterScaled.copyTo(character.submat(new Rect(14-(int)newWidth/2,14-(int)newHeight/2,(int)newWidth,(int)newHeight)));
 
 //            byte getbyte[] = new byte[(int) (character.total()*character.channels())];
-
+//
 //            character.get(0,0,getbyte);
 //
 //            for (int j = 0; j < getbyte.length; j++){
-//                if (getbyte[j] >= 150) {
+//                if (getbyte[j] >= 200) {
 //                    getbyte[j] = (byte) 255;
 //                }
 //                else {
@@ -353,10 +359,12 @@ public class OCR {
 //            }
 //            character.put(0,0,getbyte);
 
+            Imgproc.adaptiveThreshold(character, character, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 3, 10);
+
             //new filtering to decrease decimation
             Core.bitwise_not(character,character);
-            Mat kernel = new Mat();
-            Imgproc.filter2D(character,character,-1,kernel.ones(3,3,CvType.CV_8UC1));
+            Mat kernel2 = new Mat();
+            Imgproc.filter2D(character,character,-1, Mat.ones(2,2,CvType.CV_8UC1));
             Core.bitwise_not(character,character);
 
             characterData.add(character);
