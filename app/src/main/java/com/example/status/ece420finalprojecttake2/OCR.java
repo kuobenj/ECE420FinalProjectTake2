@@ -44,9 +44,12 @@ public class OCR {
         String return_string = "";
 
         for (int i = 0; i<features.size(); i++){
-            Log.d("SVM Predict Results","Value = "+svm.predict(features.get(i)));
+            Log.d("SVM Predict Results","Value = "+svm.predict(features.get(i))+" Char Val = "+charDict[(int)svm.predict(features.get(i))]);
             return_string = return_string + charDict[(int)svm.predict(features.get(i))];
         }
+
+        Log.d("Equation String",return_string);
+
         return return_string;
     }
 
@@ -182,7 +185,9 @@ public class OCR {
         List<Mat> characterRaw = new ArrayList<>();
         Log.d("genCharLines","characterLines = "+characterLines);
         Mat characterLines_inv = new Mat();
-//        Imgproc.cvtColor(characterLines,characterLines_inv,Imgproc.COLOR_BGR2GRAY);
+        if (characterLines.type() != CvType.CV_8UC1){
+            Imgproc.cvtColor(characterLines,characterLines,Imgproc.COLOR_BGR2GRAY);
+        }
 //        characterLines_inv.convertTo(characterLines_inv, CvType.CV_8UC1);
         Core.bitwise_not(characterLines,characterLines_inv);
  //        Mat charFinder = new Mat(1,characterLines.height(),CvType.CV_32FC1);
@@ -200,7 +205,7 @@ public class OCR {
 //            charFinder.get(i-1,0,charFindPrev);
 //            Log.d("genCharLines","charFind: "+charFind[i]);
 //            Log.d("genCharLines","charFindPrev: "+charFind[i-1]);
-            Log.d("genCharLines","start:"+start+"characterLines:"+characterLines.height());
+//            Log.d("genCharLines","start:"+start+"characterLines:"+characterLines.height());
             if ((charFind[i] > 0) && ((charFind[i-1] == 0)||(start == -1))){
                 start = i;
             }
@@ -240,13 +245,14 @@ public class OCR {
         for(int i = 0; i < characterRaw.size(); i++){
             Mat charInv = new Mat();
             Core.bitwise_not(characterRaw.get(i),charInv);
+            int top = 0;
+            int bottom = charInv.height()-1;
 //            Mat charFinder = new Mat(characterRaw.get(i).width(),1,CvType.CV_32SC1);
             Mat charFinder = new Mat();
             Core.reduce(charInv,charFinder,1,Core.REDUCE_SUM,CvType.CV_32SC1);
             int[] placefind = new int[(int) (charFinder.total()*charFinder.channels())];
             charFinder.get(0,0,placefind);
-            int top = 0;
-            int bottom = charInv.height()-1;
+
 
             while ((placefind[top] == 0)&&(top < bottom)){
                 top++;
@@ -332,7 +338,7 @@ public class OCR {
 
             characterScaled.copyTo(character.submat(new Rect(14-(int)newWidth/2,14-(int)newHeight/2,(int)newWidth,(int)newHeight)));
 
-            byte getbyte[] = new byte[(int) (character.total()*character.channels())];
+//            byte getbyte[] = new byte[(int) (character.total()*character.channels())];
 
 //            character.get(0,0,getbyte);
 //
@@ -346,6 +352,12 @@ public class OCR {
 //                }
 //            }
 //            character.put(0,0,getbyte);
+
+            //new filtering to decrease decimation
+            Core.bitwise_not(character,character);
+            Mat kernel = new Mat();
+            Imgproc.filter2D(character,character,-1,kernel.ones(3,3,CvType.CV_8UC1));
+            Core.bitwise_not(character,character);
 
             characterData.add(character);
         }

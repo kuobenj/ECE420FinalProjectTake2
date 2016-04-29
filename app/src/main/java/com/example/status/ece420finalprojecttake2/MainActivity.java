@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 d = BitmapFactory.decodeFile(myFile.getAbsolutePath()+"processed4.jpg");
                 jpgView.setImageBitmap(d);
 
-                TextView textView = (TextView)findViewById(R.id.textView2);
+                TextView textView = (TextView)findViewById(R.id.textView1);
                 textView.setText(equation);
 
                 //display processed image
