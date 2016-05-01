@@ -33,18 +33,62 @@ import java.util.List;
 
 public class OCR {
 
+    public static List<Integer> topList;
+    public static List<Integer> bottomList;
+    public static List<Integer> widthList;
+
     public OCR(Context context){
         OCR.context = context;
     }
 
     public static String getEquation(String filename) throws IOException {
         Mat equation_image = Highgui.imread(filename);
+        String insertStr;
+        boolean exponent = false;
         CvSVM svm = getSVMFromFile();
         List<MatOfFloat> features = generateFeatureData(equation_image);
         String return_string = "";
+        int result;
+        int resultprev = 0;
+        int maxHeight = 0;
+        int[] heights = new int[topList.size()];
+        int[] middles = new int[topList.size()];
+
+        for (int i = 0; i < topList.size(); i++){
+            heights[i] = (bottomList.get(i) - topList.get(i));
+            middles[i] = ((bottomList.get(i) - topList.get(i)) / 2);
+        }
 
         for (int i = 0; i<features.size(); i++){
-            Log.d("SVM Predict Results","Value = "+svm.predict(features.get(i))+" Char Val = "+charDict[(int)svm.predict(features.get(i))]);
+
+            insertStr = "";
+            if (heights[i] < 0.2*maxHeight && widthList.get(i) < 0.2*maxHeight) {
+                insertStr = ".";
+                result = 100;
+            }
+            else {
+                result = (int)svm.predict(features.get(i));
+
+                if (i > 0 && result<=9 && resultprev<=11 && ((resultprev == 11 && 
+                        bottomList.get(i) < middles[i - 1] - heights[i - 1] * 0.25) ||
+                        (resultprev != 11 && bottomList.get(i) < middles[i - 1]))){
+
+                    insertStr = "^(" + charDict[result];
+                    exponent = true;
+                }
+                else if (i>0 && result<100 && resultprev<=9 && 
+                        ((result == 11 && bottomList.get(i-1) < middles[i] + heights[i] * 0.25) ||
+                        (resultprev != 11 && bottomList.get(i-1) < middles[i]))){
+                    insertStr = ')' + charDict[result];
+                    exponent = false;
+                }
+                else{
+                    insertStr = charDict[result];
+                }
+            }
+            resultprev = result;
+
+            Log.d("SVM Predict Results",insertStr);
             return_string = return_string + charDict[(int)svm.predict(features.get(i))];
         }
 
@@ -209,7 +253,7 @@ public class OCR {
             if ((charFind[i] > 0) && ((charFind[i-1] == 0)||(start == -1))){
                 start = i;
             }
-            else if ((charFind[i] == 0) && ((charFind[i-1] > 0)&&(start != -1))){
+            else if ((charFind[i] == 0 || i ==  charFind.length - 1) && (charFind[i-1] > 0) && (start != -1)){
                 characterRaw.add(characterLines.submat(0,characterLines.height(),start,i-1));
 
                 File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
@@ -239,6 +283,9 @@ public class OCR {
 
     private static List<Mat> generateCharacterFormatted(List<Mat> characterRaw) {
         List<Mat> characterData = new ArrayList<>();
+        topList = new ArrayList<Integer>();
+        bottomList = new ArrayList<Integer>();
+        widthList = new ArrayList<Integer>();
 
         Log.d("genCharForm","Entering generateCharacterFormatted, characterRaw size: "+characterRaw.size());
 
@@ -253,7 +300,6 @@ public class OCR {
             Core.bitwise_not(chartemp,charInv);
             int top = 0;
             int bottom = charInv.height()-1;
-//            Mat charFinder = new Mat(characterRaw.get(i).width(),1,CvType.CV_32SC1);
             Mat charFinder = new Mat();
             Core.reduce(charInv,charFinder,1,Core.REDUCE_SUM,CvType.CV_32SC1);
             int[] placefind = new int[(int) (charFinder.total()*charFinder.channels())];
@@ -269,25 +315,6 @@ public class OCR {
             }
 
             Mat characterBound = characterRaw.get(i).submat(top,bottom,0,charInv.width());
-
-//            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-//                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
-//
-//            // Create the storage directory if it does not exist
-//            if (! mediaStorageDir.exists()){
-//                if (! mediaStorageDir.mkdirs()){
-//                    Log.d("MyCameraApp", "failed to create directory");
-//                    return null;
-//                }
-//            }
-//
-//            // Create a media file name
-//            String media_string = mediaStorageDir.getPath() + File.separator +
-//                    "characterboundimage"+i+".jpg";
-//            File mediaFile = new File(media_string);
-//            Uri fileUri = Uri.fromFile(mediaFile);
-//            Highgui.imwrite(fileUri.getPath(),characterBound);
-
 
             float height = characterBound.height();
             float width = characterBound.width();
@@ -338,26 +365,8 @@ public class OCR {
 
             Mat character = new Mat(28,28,CvType.CV_8UC1,new Scalar(255));
 
-//            Mat poop = new Mat(20,20,CvType.CV_8UC1,new Scalar(0));
-
-//            Log.d("genCharForm","Row range and col range bounds: ["+Math.round(14 - newHeight / 2)+","+Math.round(14 + newHeight / 2)+","+Math.round(14 - newWidth / 2)+","+Math.round(14 + newWidth / 2)+"]");
-
             characterScaled.copyTo(character.submat(new Rect(14-(int)newWidth/2,14-(int)newHeight/2,(int)newWidth,(int)newHeight)));
 
-//            byte getbyte[] = new byte[(int) (character.total()*character.channels())];
-//
-//            character.get(0,0,getbyte);
-//
-//            for (int j = 0; j < getbyte.length; j++){
-//                if (getbyte[j] >= 200) {
-//                    getbyte[j] = (byte) 255;
-//                }
-//                else {
-//                    getbyte[0] = 0;
-//
-//                }
-//            }
-//            character.put(0,0,getbyte);
 
             Imgproc.adaptiveThreshold(character, character, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 3, 10);
 
@@ -368,6 +377,9 @@ public class OCR {
             Core.bitwise_not(character,character);
 
             characterData.add(character);
+            topList.add(top);
+            bottomList.add(bottom);
+            widthList.add((int)width);
         }
 
         Log.d("genCharForm","Finished with generating Formatted characters, Length: "+characterData.size());
