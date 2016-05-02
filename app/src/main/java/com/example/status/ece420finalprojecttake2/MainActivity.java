@@ -128,19 +128,8 @@ public class MainActivity extends AppCompatActivity {
                 TextView textView = (TextView)findViewById(R.id.textView1);
                 textView.setText(equation);
 
-                //display processed image
-//                ImageView jpgView2 = (ImageView)findViewById(R.id.jpgview2);
-//                Smoother smooth_operation = new Smoother();
-//                smooth_operation.smooth(myFile.getAbsolutePath());
-//                d = BitmapFactory.decodeFile(myFile.getAbsolutePath()+"smoothed.jpg");
-//                jpgView2.setImageBitmap(d);
+                DaPlot.plot(equation,this);
 
-                //display second processed image (finding box)
-//                ImageView jpgView3 = (ImageView)findViewById(R.id.jpgview2);
-//                PreProcessor preprocessor_operation = new PreProcessor();
-//                preprocessor_operation.preprocess(myFile.getAbsolutePath());
-//                d = BitmapFactory.decodeFile(myFile.getAbsolutePath()+"processed.jpg");
-//                jpgView3.setImageBitmap(d);
             } else if (resultCode == RESULT_CANCELED) {
                 // User cancelled the image capture
                 Toast.makeText(this, "Image Capture Canceled", Toast.LENGTH_LONG).show();
