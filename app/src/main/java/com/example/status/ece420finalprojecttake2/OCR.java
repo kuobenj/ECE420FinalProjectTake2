@@ -56,11 +56,19 @@ public class OCR {
 
         for (int i = 0; i < topList.size(); i++){
             heights[i] = (bottomList.get(i) - topList.get(i));
-            middles[i] = ((bottomList.get(i) - topList.get(i)) / 2);
+            middles[i] = ((bottomList.get(i) + topList.get(i)) / 2);
+            if (heights[i] > maxHeight){
+                maxHeight = heights[i];
+            }
         }
 
-        for (int i = 0; i<features.size(); i++){
+        Log.d("maxHeight", Integer.toString(maxHeight));
 
+        for (int i = 0; i<features.size(); i++){
+            Log.d("height "+Integer.toString(i),Integer.toString(heights[i]));
+            Log.d("middle"+Integer.toString(i), Integer.toString(middles[i]));
+            Log.d("top"+Integer.toString(i), Integer.toString(topList.get(i)));
+            Log.d("bottom"+Integer.toString(i), Integer.toString(bottomList.get(i)));
             insertStr = "";
             if (heights[i] < 0.2*maxHeight && widthList.get(i) < 0.2*maxHeight) {
                 insertStr = ".";
@@ -68,6 +76,7 @@ public class OCR {
             }
             else {
                 result = (int)svm.predict(features.get(i));
+
 
                 if (i > 0 && result<=9 && resultprev<=11 && ((resultprev == 11 && 
                         bottomList.get(i) < middles[i - 1] - heights[i - 1] * 0.25) ||
@@ -89,7 +98,11 @@ public class OCR {
             resultprev = result;
 
             Log.d("SVM Predict Results",insertStr);
-            return_string = return_string + charDict[(int)svm.predict(features.get(i))];
+            return_string = return_string + insertStr;
+        }
+
+        if (exponent){
+            return_string = return_string + ')';
         }
 
         Log.d("Equation String",return_string);
