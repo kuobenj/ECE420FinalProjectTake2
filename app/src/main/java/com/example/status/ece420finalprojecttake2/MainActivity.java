@@ -75,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.plot_eqn){
-//            DaPlot.plot(last_equation,this);
-
 //            GraphView graph = (GraphView) findViewById(R.id.graph);
 //            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
 //                    new DataPoint(0, 1),
@@ -109,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             GraphView graph = (GraphView) findViewById(R.id.graph);
+            graph.removeAllSeries();
+            graph = (GraphView) findViewById(R.id.graph);
+
             DataPoint[] datapoints = new DataPoint[pointNum];
             for (int i = 0; i < pointNum; i++) {
                 datapoints[i] = new DataPoint(xVals[i],yVals[i]);
@@ -121,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
             LineGraphSeries<DataPoint> series = new LineGraphSeries<>(datapoints);
 
             Log.d("Plotting","series: "+series);
-            graph.removeAllSeries();
             graph.addSeries(series);
         }
 
