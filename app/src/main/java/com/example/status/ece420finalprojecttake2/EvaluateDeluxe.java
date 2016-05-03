@@ -45,6 +45,14 @@ public class EvaluateDeluxe {
             input = "0" + input;
         }
 
+        if(input.substring(0, 2).equals("y=")){
+            input = input.substring(2,input.length());
+        }
+
+        if(input.substring(input.length()-2, input.length()).equals("=y")){
+            input = input.substring(0,input.length()-2);
+        }
+
         //multiply boogaloo
         for(int i = 0; i < input.length()-1; i++){
 
