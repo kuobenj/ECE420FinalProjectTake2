@@ -11,9 +11,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Log.d("Start up", "Package name: "+getApplicationContext().getPackageName());
+
+        setTitle("#420yolOCR");
     }
 
     @Override
@@ -67,26 +74,77 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        if (id == R.id.test_char){
-            try {
-                OCR.readChar(this);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (id == R.id.plot_eqn){
+//            DaPlot.plot(last_equation,this);
+
+//            GraphView graph = (GraphView) findViewById(R.id.graph);
+//            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
+//                    new DataPoint(0, 1),
+//                    new DataPoint(1, 5),
+//                    new DataPoint(2, 3),
+//                    new DataPoint(3, 2),
+//                    new DataPoint(4, 6)
+//            });
+//            graph.addSeries(series);
+
+
+            String equationStr;
+            String evaluationStr;
+            String valStr;
+            int pointNum = 201;
+            double[] xVals = new double[pointNum];
+            double[] yVals = new double[pointNum];
+
+            Log.d("Plotting","Last equation: "+last_equation);
+            equationStr = EvaluateDeluxe.stringfixerooni(last_equation);
+            Log.d("Plotting","equationStr: "+equationStr);
+            for (int i = 0; i < pointNum; i++) {
+                xVals[i] = 0.1 * i - 10;
+                if (xVals[i] < 0)
+                    valStr = "(0" + Double.toString(xVals[i]) + ")";
+                else
+                    valStr = Double.toString(xVals[i]);
+                evaluationStr = equationStr.replace("x", valStr);
+                yVals[i] = EvaluateDeluxe.parseEquation(evaluationStr);
             }
+
+            GraphView graph = (GraphView) findViewById(R.id.graph);
+            DataPoint[] datapoints = new DataPoint[pointNum];
+            for (int i = 0; i < pointNum; i++) {
+                datapoints[i] = new DataPoint(xVals[i],yVals[i]);
+            }
+
+            Log.d("Plotting","x's: "+xVals.length);
+            Log.d("Plotting","y's: "+yVals.length);
+            Log.d("Plotting","points: "+datapoints.length);
+
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(datapoints);
+
+            Log.d("Plotting","series: "+series);
+            graph.removeAllSeries();
+            graph.addSeries(series);
         }
 
-        if (id == R.id.test_segmentation){
-            my_ocr = new OCR(this);
-            try {
-                my_ocr.testSegmentation();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (id == R.id.test_img){
-            Preprocessor.testBinarization(this);
-        }
+//        if (id == R.id.test_char){
+//            try {
+//                OCR.readChar(this);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        if (id == R.id.test_segmentation){
+//            my_ocr = new OCR(this);
+//            try {
+//                my_ocr.testSegmentation();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        if (id == R.id.test_img){
+//            Preprocessor.testBinarization(this);
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -128,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView textView = (TextView)findViewById(R.id.textView1);
                 textView.setText(equation);
 
-                DaPlot.plot(equation,this);
+                last_equation = equation;
 
             } else if (resultCode == RESULT_CANCELED) {
                 // User cancelled the image capture
@@ -194,7 +252,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private OCR my_ocr;
-    private String last_file;
+    private String last_file = null;
+    private String last_equation = null;
+
 
     static{ System.loadLibrary("opencv_java"); }
 }

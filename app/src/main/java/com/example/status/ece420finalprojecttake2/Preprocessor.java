@@ -198,7 +198,7 @@ public class Preprocessor {
 
         //Use adaptive threshhold to binarize image
         int blocksize = (greyCroppedImage.width()/12)*2 + 1;
-        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blocksize, 80);
+        Imgproc.adaptiveThreshold(greyCroppedImage, cropped_binary, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, blocksize, 60);
         // resize(cropped_binary, cropped_binary, SIZE??, 0, 0, interpolation);
         output = cropped_binary;
 

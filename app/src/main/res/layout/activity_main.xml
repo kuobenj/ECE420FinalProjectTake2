@@ -24,18 +24,18 @@
         <ImageView
             android:id="@+id/jpgview"
             android:layout_width="fill_parent"
-            android:layout_height="100dip" />
+            android:layout_height="200dip" />
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="100dip"
+            android:layout_height="200dip"
             android:id="@+id/graph" />
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Other Text"
+            android:text="Please verify equation is valid before plotting!"
             android:id="@+id/textView2"
             android:layout_gravity="center_horizontal" />
 

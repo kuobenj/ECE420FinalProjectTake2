@@ -78,7 +78,7 @@ public class OCR {
                 result = (int)svm.predict(features.get(i));
 
 
-                if (i > 0 && result<=9 && resultprev<=11 && ((resultprev == 11 && 
+                if (i > 0 && result<=9 && (resultprev<=11 || resultprev == 13) && ((resultprev == 11 &&
                         bottomList.get(i) < middles[i - 1] - heights[i - 1] * 0.25) ||
                         (resultprev != 11 && bottomList.get(i) < middles[i - 1]))){
 
@@ -424,5 +424,5 @@ public class OCR {
 
     private static Context context;
 
-    private static String charDict[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9","x", "y", "(", ")", "+", "-", "="};
+    private static String charDict[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9","x", "y", "(", ")", "+", "-", "-"/*"="*/};
 }

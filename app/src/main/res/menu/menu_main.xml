@@ -4,10 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/take_pic" android:title="Capture Equation"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/test_char" android:title="Test Single HOG"
+    <item android:id="@+id/plot_eqn" android:title="Plot Equation"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <!--<item android:id="@+id/test_char" android:title="Test Single HOG"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/test_segmentation" android:title="Test Segmentation"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/test_img" android:title="Test Binarization"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100" app:showAsAction="never" />-->
 </menu>

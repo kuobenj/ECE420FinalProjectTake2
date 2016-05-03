@@ -1,6 +1,7 @@
 package com.example.status.ece420finalprojecttake2;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 
 import com.jjoe64.graphview.GraphView;
@@ -23,28 +24,42 @@ public class DaPlot {
         double[] xVals = new double[pointNum];
         double[] yVals = new double[pointNum];
 
-        equationStr = EvaluateDeluxe.stringfixerooni(equation);
-
-        for (int i = 0; i < pointNum; i++) {
-            xVals[i] = 0.1 * i - 10;
-            if (xVals[i] < 0)
-                valStr = "(0" + Double.toString(xVals[i]) + ")";
-            else
-                valStr = Double.toString(xVals[i]);
-            evaluationStr = equationStr.replace("x", valStr);
-            yVals[i] = EvaluateDeluxe.parseEquation(evaluationStr);
-        }
+//        equationStr = EvaluateDeluxe.stringfixerooni(equation);
+//
+//        for (int i = 0; i < pointNum; i++) {
+//            xVals[i] = 0.1 * i - 10;
+//            if (xVals[i] < 0)
+//                valStr = "(0" + Double.toString(xVals[i]) + ")";
+//            else
+//                valStr = Double.toString(xVals[i]);
+//            evaluationStr = equationStr.replace("x", valStr);
+//            yVals[i] = EvaluateDeluxe.parseEquation(evaluationStr);
+//        }
 
         View v = new View(context);
-        GraphView graph = (GraphView) v.findViewById(R.id.graph);
+//        GraphView graph = (GraphView) v.findViewById(R.id.graph);
+        GraphView graph = new GraphView(context);
+//        DataPoint[] datapoints = new DataPoint[pointNum];
+//        for (int i = 0; i < pointNum; i++) {
+//            datapoints[i] = new DataPoint(xVals[i],yVals[i]);
+//        }
 
-        DataPoint[] datapoints = new DataPoint[pointNum];
-        for (int i = 0; i < pointNum; i++) {
-            datapoints[i] = new DataPoint(xVals[i],yVals[i]);
-        }
+//        Log.d("Plotting","x's: "+xVals.length);
+//        Log.d("Plotting","y's: "+yVals.length);
+//        Log.d("Plotting","points: "+datapoints.length);
 
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(datapoints);
+//        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(datapoints);
 
+//        Log.d("Plotting","series: "+series);
+//        graph.addSeries(series);
+
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
+                new DataPoint(0, 1),
+                new DataPoint(1, 5),
+                new DataPoint(2, 3),
+                new DataPoint(3, 2),
+                new DataPoint(4, 6)
+        });
         graph.addSeries(series);
     }
 }
