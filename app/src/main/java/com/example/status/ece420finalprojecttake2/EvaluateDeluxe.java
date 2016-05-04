@@ -38,8 +38,9 @@ public class EvaluateDeluxe {
 
     public static String stringfixerooni(String input){
         //fuck spaces
-        input.replace(" ", "");
+        input = input.replace(" ", "");
 
+        input = input.replace(")(", ")*(");
         //Minus sign boyz
         if(input.charAt(0) == '-'){
             input = "0" + input;
